@@ -13,6 +13,8 @@ int steps = 0;
 
 int threshold = 90000; // threshold above which a signifcant movement has occurred
 
+LiquidCrystal lcd(1, 0, 5, 4, 3, 2); // lcd pins setup
+
 void setup() {
   Serial.begin(9600);
   Wire.begin(); // Initialize serial communications
@@ -20,6 +22,11 @@ void setup() {
   Wire.write(0x2D); // Enable measurement
   Wire.write(8); // Get sample measurement
   Wire.endTransmission();
+
+  lcd.begin(16,2);
+  lcd.print("Hey!");
+  lcd.setCursor(0,1);
+  lcd.print("[Test line 2]");
 }
 
 void loop() {
@@ -42,7 +49,10 @@ void loop() {
   Serial.println(totalAccel);
  
   delay(50); 
- 
+  if (totalAccel < threshold) {
+    peak_detected = false;
+  }
+
   if (totalAccel > threshold && peak_detected == false) {
     peak_detected = true;
     peak_start_time = millis();
@@ -59,7 +69,7 @@ void loop() {
   if (peak_length > 100) {
     steps = steps + 1;
     Serial.println("step counted");
-    delay(1000);
+    delay(500);
    // Serial.println(steps);
   }
 
