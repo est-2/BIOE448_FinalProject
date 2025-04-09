@@ -21,12 +21,18 @@ void loop() {
   x = (Wire.read() | Wire.read() << 8); // Parse x values
   y = (Wire.read() | Wire.read() << 8); // Parse y values
   y = (Wire.read() | Wire.read() << 8); // Parse z values
+ float totalAccel = sqrt(x*x + y*y + z*z);
 
   Serial.print("x = "); // Print values
   Serial.print(x);
   Serial.print(", y = ");
   Serial.print(y);
   Serial.print(", z = ");
-  Serial.println(z);
+  Serial.print(z);
+   Serial.print(", sum = ");
+  Serial.println(totalAccel);
   delay(200);
+
+ 
+  
 }
