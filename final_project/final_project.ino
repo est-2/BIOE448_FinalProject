@@ -4,6 +4,15 @@
 int accel = 0x53; // I2C address for this sensor (from data sheet)
 float x, y, z;
 
+bool peak_detected = false;
+unsigned long peak_start_time = 0;
+unsigned long peak_end_time = 0;
+unsigned long peak_length = 0;
+
+int steps = 0;
+
+int threshold = 90000; // threshold above which a signifcant movement has occurred
+
 void setup() {
   Serial.begin(9600);
   Wire.begin(); // Initialize serial communications
@@ -23,16 +32,35 @@ void loop() {
   y = (Wire.read() | Wire.read() << 8); // Parse z values
  float totalAccel = sqrt(x*x + y*y + z*z);
 
-  Serial.print("x = "); // Print values
-  Serial.print(x);
-  Serial.print(", y = ");
-  Serial.print(y);
-  Serial.print(", z = ");
-  Serial.print(z);
-   Serial.print(", sum = ");
+ // Serial.print("x = "); // Print values
+ // Serial.print(x);
+ // Serial.print(", y = ");
+ // Serial.print(y);
+ // Serial.print(", z = ");
+ // Serial.print(z);
+ // Serial.print(", sum = ");
   Serial.println(totalAccel);
-  delay(200);
-
  
+  delay(50); 
+ 
+  if (totalAccel > threshold && peak_detected == false) {
+    peak_detected = true;
+    peak_start_time = millis();
+    Serial.println("new HIGH");
+  } 
   
+  if (totalAccel < threshold && peak_detected == true) {
+    peak_detected = false;
+    peak_end_time = millis();
+    peak_length = peak_end_time - peak_start_time;
+    Serial.println("new LOW");
+  }
+
+  if (peak_length > 100) {
+    steps = steps + 1;
+    Serial.println("step counted");
+    delay(1000);
+   // Serial.println(steps);
+  }
+
 }
