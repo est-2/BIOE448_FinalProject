@@ -21,7 +21,9 @@ int threshold = 200; // threshold below which a signifcant movement has occurred
 const int rs = 13, en = 12, d4 = 7, d5 = 6, d6 = 5, d7 = 4; // update pins as needed
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // lcd pins setup
 
-int goal = 10; // prevents "goal achieved" from triggering immediately
+const int buzzer = 8;
+
+int goal = 10; // prevents "goal reached" from triggering immediately
 
 
 void setup() {
@@ -38,18 +40,20 @@ void setup() {
   // lcd.setCursor(0,1);
   // lcd.print("[Test line 2]");
 
+  pinMode(buzzer, OUTPUT);
+
 
   lcd.print("Input step goal");
   while (Serial.available() == 0) {
   }
 
-  int goal = Serial.parseInt();
+  goal = Serial.parseInt();
   lcd.clear();
   lcd.print("Step goal: ");
   lcd.setCursor(0,1);
   lcd.print(goal);
 
-  delay(1000);
+  delay(3000);
   lcd.clear();
   lcd.print("Begin");
   
@@ -101,6 +105,17 @@ void loop() {
     //Serial.println("move start");
     //move_length = 0;
   }   
+
+  if (steps == goal) {
+    tone(buzzer, 440, 500);
+    delay(500);
+    tone(buzzer, 880, 600);
+    delay(600);
+    tone(buzzer, 880, 600);
+    delay(600);
+    tone(buzzer, 880, 600);
+    steps = steps + 1; // so tone does not continue playing
+  }
 
   if (steps >= goal) {
     lcd.setCursor(0,1);
