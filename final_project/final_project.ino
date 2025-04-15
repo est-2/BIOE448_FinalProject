@@ -11,6 +11,8 @@ bool move_detected = false;
 unsigned long move_start_time = 0;
 unsigned long move_end_time = 0;
 unsigned long move_length = 0;
+unsigned long this_move_time = 0;
+unsigned long last_move_time = 0;
 
 int steps = 0;
 
@@ -29,9 +31,10 @@ void setup() {
   Wire.endTransmission();
 
   lcd.begin(16,2);
-  lcd.print("Hey!");
-  lcd.setCursor(0,1);
-  lcd.print("[Test line 2]");
+  // lcd.print("Hey!");
+  // lcd.setCursor(0,1);
+  // lcd.print("[Test line 2]");
+  lcd.print("Start stepping!");
 }
 
 void loop() {
@@ -60,9 +63,18 @@ void loop() {
     //move_end_time = millis();
     //move_length = move_end_time - move_start_time;
    // Serial.println("move end"); 
-   steps = steps + 1;
-   Serial.print("step count: ");
-   Serial.println(steps);
+
+    this_move_time = millis();
+    if (this_move_time - last_move_time > 100){ // avoids counting the same step twice
+      steps = steps + 1;
+      Serial.print("step count: ");
+      Serial.println(steps);
+      lcd.clear();
+      lcd.print("Step count: ");
+      lcd.print(steps);
+      }
+
+    last_move_time = this_move_time; // set current move time to be the time to compare the next one to
   }
 
   if (totalAccel < threshold && move_detected == false) {
