@@ -1,6 +1,9 @@
 #include <Wire.h> // Necessary for I2C communication
 #include <LiquidCrystal.h> // Library for LCD screen
 
+// const SDA = D2; default for Leonardo
+// const SCL = D3; default for Leonardo
+
 int accel = 0x53; // I2C address for this sensor (from data sheet)
 float x, y, z;
 
@@ -13,7 +16,9 @@ int steps = 0;
 
 int threshold = 90000; // threshold above which a signifcant movement has occurred
 
-LiquidCrystal lcd(1, 0, 5, 4, 3, 2); // lcd pins setup
+const int rs = 13, en = 12, d4 = 7, d5 = 6, d6 = 5, d7 = 4; // update pins as needed
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // lcd pins setup
+
 
 void setup() {
   Serial.begin(9600);
@@ -49,6 +54,12 @@ void loop() {
   Serial.println(totalAccel);
  
   delay(50); 
+
+
+  if (steps < 0) {
+      steps = 0; // to avoid issues
+    }
+
   if (totalAccel < threshold) {
     peak_detected = false;
   }
