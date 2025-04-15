@@ -57,23 +57,26 @@ void loop() {
 
   if (totalAccel > threshold && move_detected == true) {
     move_detected = false;
-    move_end_time = millis();
-    move_length = move_end_time - move_start_time;
-    Serial.println("move end"); 
+    //move_end_time = millis();
+    //move_length = move_end_time - move_start_time;
+   // Serial.println("move end"); 
+   steps = steps + 1;
+   Serial.print("step count: ");
+   Serial.println(steps);
   }
 
   if (totalAccel < threshold && move_detected == false) {
     move_detected = true;
-    move_start_time = millis();
-    Serial.println("move start");
-    move_length = 0;
+    //move_start_time = millis();
+    //Serial.println("move start");
+    //move_length = 0;
   }   
 
-  if (move_length > 100) {
-    steps = steps + 1;
-    Serial.println("step counted");
-    Serial.print("step count: ");
-    Serial.println(steps);
-  }
+  //if (move_length > 100) {
+  //  steps = steps + 1;
+ //   Serial.println("step counted");
+ //   Serial.print("step count: ");
+  //  Serial.println(steps);
+ // }
 
 }
