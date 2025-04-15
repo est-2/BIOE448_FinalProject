@@ -21,6 +21,8 @@ int threshold = 200; // threshold below which a signifcant movement has occurred
 const int rs = 13, en = 12, d4 = 7, d5 = 6, d6 = 5, d7 = 4; // update pins as needed
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7); // lcd pins setup
 
+int goal = 10; // prevents "goal achieved" from triggering immediately
+
 
 void setup() {
   Serial.begin(9600);
@@ -31,10 +33,26 @@ void setup() {
   Wire.endTransmission();
 
   lcd.begin(16,2);
+  lcd.clear();
   // lcd.print("Hey!");
   // lcd.setCursor(0,1);
   // lcd.print("[Test line 2]");
-  lcd.print("Start stepping!");
+
+
+  lcd.print("Input step goal");
+  while (Serial.available() == 0) {
+  }
+
+  int goal = Serial.parseInt();
+  lcd.clear();
+  lcd.print("Step goal: ");
+  lcd.setCursor(0,1);
+  lcd.print(goal);
+
+  delay(1000);
+  lcd.clear();
+  lcd.print("Begin");
+  
 }
 
 void loop() {
@@ -65,7 +83,7 @@ void loop() {
    // Serial.println("move end"); 
 
     this_move_time = millis();
-    if (this_move_time - last_move_time > 100){ // avoids counting the same step twice
+    if (this_move_time - last_move_time > 500){ // avoids counting the same step twice
       steps = steps + 1;
       Serial.print("step count: ");
       Serial.println(steps);
@@ -83,6 +101,11 @@ void loop() {
     //Serial.println("move start");
     //move_length = 0;
   }   
+
+  if (steps >= goal) {
+    lcd.setCursor(0,1);
+    lcd.print("Goal reached!");
+  }
 
   //if (move_length > 100) {
   //  steps = steps + 1;
