@@ -53,7 +53,7 @@ void setup() {
   lcd.setCursor(0,1);
   lcd.print(goal);
 
-  delay(3000);
+  delay(2000);
   lcd.clear();
   lcd.print("Begin");
   
@@ -76,7 +76,7 @@ void loop() {
  // Serial.print(", z = ");
  // Serial.print(z);
  // Serial.print(", sum = ");
-  Serial.println(totalAccel);
+  // Serial.println(totalAccel);
  
   delay(50);
 
@@ -89,8 +89,8 @@ void loop() {
     this_move_time = millis();
     if (this_move_time - last_move_time > 500){ // avoids counting the same step twice
       steps = steps + 1;
-      Serial.print("step count: ");
-      Serial.println(steps);
+     // Serial.print("step count: ");
+     // Serial.println(steps);
       lcd.clear();
       lcd.print("Step count: ");
       lcd.print(steps);
@@ -107,13 +107,13 @@ void loop() {
   }   
 
   if (steps == goal) {
-    tone(buzzer, 440, 500);
-    delay(500);
-    tone(buzzer, 880, 600);
-    delay(600);
-    tone(buzzer, 880, 600);
-    delay(600);
-    tone(buzzer, 880, 600);
+    tone(buzzer, 440, 250);
+    delay(275);
+    tone(buzzer, 880, 300);
+    delay(400);
+    tone(buzzer, 880, 300);
+    delay(400);
+    tone(buzzer, 880, 300);
     steps = steps + 1; // so tone does not continue playing
   }
 
