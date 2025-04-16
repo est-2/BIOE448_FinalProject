@@ -1,6 +1,8 @@
 #include <Wire.h> // Necessary for I2C communication
 #include <LiquidCrystal.h> // Library for LCD screen
 
+#define BT Serial1  // Pins 0(RX) and 1(TX)
+
 // const SDA = D2; default for Leonardo
 // const SCL = D3; default for Leonardo
 
@@ -25,38 +27,79 @@ const int buzzer = 8;
 
 int goal = 10; // prevents "goal reached" from triggering immediately
 
+// Helper function to convert HEX character to integer
+int hexCharToInt(char ch) {
+  if (ch >= '0' && ch <= '9') return ch - '0';
+  if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+  if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+  return -1; // invalid HEX character
+}
 
 void setup() {
-  Serial.begin(9600);
-  Wire.begin(); // Initialize serial communications
-  Wire.beginTransmission(accel); // Start communicating with the device
-  Wire.write(0x2D); // Enable measurement
-  Wire.write(8); // Get sample measurement
+  Serial.begin(115200);    // USB serial monitor
+  while (!Serial);         // wait for Serial Monitor
+  BT.begin(115200);        // Established baud rate
+  Serial.println("Leonardo HC-10 Ready at 115200");
+
+  Wire.begin();
+  Wire.beginTransmission(accel);
+  Wire.write(0x2D);
+  Wire.write(8);
   Wire.endTransmission();
 
-  lcd.begin(16,2);
+  lcd.begin(16, 2);
   lcd.clear();
-  // lcd.print("Hey!");
-  // lcd.setCursor(0,1);
-  // lcd.print("[Test line 2]");
-
+  lcd.print("Waiting BT...");
   pinMode(buzzer, OUTPUT);
 
+  Serial.println("Waiting for step goal via BLE...");
 
-  lcd.print("Input step goal");
-  while (Serial.available() == 0) {
+  String hexInput = "";
+  char c;
+
+  while (true) {
+    if (BT.available()) {
+      c = BT.read();
+
+      Serial.print("Received HEX char: 0x");
+      if (c < 16) Serial.print("0");
+      Serial.println(c, HEX);
+
+      // Only valid HEX chars
+      if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
+        hexInput += c;
+        lcd.setCursor(0, 1);
+        lcd.print(hexInput);
+      }
+
+      // End input on newline, carriage return, or after 4 hex chars (optional limit)
+      if (c == '\n' || c == '\r' || hexInput.length() >= 4) {
+        break;
+      }
+    }
   }
 
-  goal = Serial.parseInt();
+  // Convert HEX input to integer goal
+  goal = (int)strtol(hexInput.c_str(), NULL, 16);
+
   lcd.clear();
-  lcd.print("Step goal: ");
-  lcd.setCursor(0,1);
-  lcd.print(goal);
+  if (goal > 0) {
+    lcd.print("Step goal:");
+    lcd.setCursor(0, 1);
+    lcd.print(goal);
+    Serial.print("Goal set to: ");
+    Serial.println(goal);
+  } else {
+    goal = 10;
+    lcd.print("Invalid HEX");
+    lcd.setCursor(0, 1);
+    lcd.print("Using default");
+    Serial.println("Invalid HEX input. Goal = 10.");
+  }
 
   delay(2000);
   lcd.clear();
-  lcd.print("Begin");
-  
+  lcd.print("Begin!");
 }
 
 void loop() {
